@@ -415,31 +415,19 @@ class ServerModel with ChangeNotifier {
       }
     } else {
       await checkRequestNotificationPermission();
+      // ---------- 存储权限只首次申请一次，拒绝后不再强制 ----------
+      // 原逻辑（每次都申请，留作备份）：
+      // if (!await AndroidPermissionManager.check(kManageExternalStorage)) {
+      //   await AndroidPermissionManager.request(kManageExternalStorage);
+      // }
       if (!await AndroidPermissionManager.check(kManageExternalStorage)) {
-        await AndroidPermissionManager.request(kManageExternalStorage);
+        final asked = bind.mainGetLocalOption(key: 'storage-permission-asked');
+        if (asked != 'Y') {
+          bind.mainSetLocalOption(key: 'storage-permission-asked', value: 'Y');
+          await AndroidPermissionManager.request(kManageExternalStorage);
+        }
       }
-      final res = await parent.target?.dialogManager
-          .show<bool>((setState, close, context) {
-        submit() => close(true);
-        return CustomAlertDialog(
-          title: Row(children: [
-            const Icon(Icons.warning_amber_sharp,
-                color: Colors.redAccent, size: 28),
-            const SizedBox(width: 10),
-            Text(translate("Warning")),
-          ]),
-          content: Text(translate("android_service_will_start_tip")),
-          actions: [
-            dialogButton("Cancel", onPressed: close, isOutline: true),
-            dialogButton("OK", onPressed: submit),
-          ],
-          onSubmit: submit,
-          onCancel: close,
-        );
-      });
-      if (res == true) {
-        startService();
-      }
+      startService();
     }
   }
 

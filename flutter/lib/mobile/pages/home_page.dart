@@ -123,22 +123,9 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final ignoreBattery =
         await AndroidPermissionManager.check(kRequestIgnoreBatteryOptimizations);
     if (ignoreBattery != true) {
-      if (!mounted) return;
-      gFFI.dialogManager.show((setState, close, context) {
-        return CustomAlertDialog(
-          title: const Text("电池优化未关闭"),
-          content: const Text("请允许忽略电池优化，否则服务可能在后台被系统杀死"),
-          actions: [
-            dialogButton("取消", onPressed: () => close(), isOutline: true),
-            dialogButton("去开启", onPressed: () async {
-              close();
-              await AndroidPermissionManager.request(
-                  kRequestIgnoreBatteryOptimizations);
-            }),
-          ],
-        );
-      });
-      return;
+      // 直接调系统直授弹窗，不再套自己的提示框
+      await AndroidPermissionManager.request(
+          kRequestIgnoreBatteryOptimizations);
     }
   }
   
