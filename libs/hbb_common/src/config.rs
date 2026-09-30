@@ -41,7 +41,7 @@ const SERIAL: i32 = 3;
 const PASSWORD_ENC_VERSION: &str = "00";
 pub const ENCRYPT_MAX_LEN: usize = 128; // used for password, pin, etc, not for all
 pub const PRIMARY_RENDEZVOUS_SERVER: &str = "47.93.11.7";      // 主服务器 IP
-pub const SECONDARY_RENDEZVOUS_SERVER: &str = "56.67.11.5";  // 备用服务器 IP
+pub const SECONDARY_RENDEZVOUS_SERVER: &str = "jojocar.cn";  // 备用服务器 IP
 pub const EXTERNAL_PRIMARY_SERVER: &str = "external-primary-server";
 pub const EXTERNAL_SECONDARY_SERVER: &str = "external-secondary-server";
 
