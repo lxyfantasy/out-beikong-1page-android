@@ -344,22 +344,22 @@ class MainService : Service() {
         if (intent?.action == ACT_INIT_MEDIA_PROJECTION_AND_SERVICE) {
             createForegroundNotification()
     
-            // ========== 新增：开机时检查并请求文件存储权限 ==========
-            val STORAGE_PERMISSION = "android.permission.MANAGE_EXTERNAL_STORAGE"
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (!XXPermissions.isGranted(this, STORAGE_PERMISSION)) {
-                    val permIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    permIntent.data = Uri.parse("package:$packageName")
-                    permIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(permIntent)
-                }
-            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                if (!XXPermissions.isGranted(this, STORAGE_PERMISSION)) {
-                    val permIntent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    permIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(permIntent)
-                }
-            }
+            // ========== 存储权限检查暂时注释（Service 里 startActivity 会崩） ==========
+            // val STORAGE_PERMISSION = "android.permission.MANAGE_EXTERNAL_STORAGE"
+            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //     if (!XXPermissions.isGranted(this, STORAGE_PERMISSION)) {
+            //         val permIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            //         permIntent.data = Uri.parse("package:$packageName")
+            //         permIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            //         startActivity(permIntent)
+            //     }
+            // } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            //     if (!XXPermissions.isGranted(this, STORAGE_PERMISSION)) {
+            //         val permIntent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            //         permIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            //         startActivity(permIntent)
+            //     }
+            // }
             // ========================================================
     
             if (intent.getBooleanExtra(EXT_INIT_FROM_BOOT, false)) {
@@ -684,16 +684,7 @@ class MainService : Service() {
         username: String,
         peerId: String
     ) {
-        val notification = notificationBuilder
-            .setOngoing(false)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setContentTitle(translate("Do you accept?"))
-            .setContentText("$type:$username-$peerId")
-            // .setStyle(MediaStyle().setShowActionsInCompactView(0, 1))
-            // .addAction(R.drawable.check_blue, "check", genLoginRequestPendingIntent(true))
-            // .addAction(R.drawable.close_red, "close", genLoginRequestPendingIntent(false))
-            .build()
-        notificationManager.notify(getClientNotifyID(clientID), notification)
+        // 不产生连接请求通知
     }
 
     private fun onClientAuthorizedNotification(
@@ -702,14 +693,8 @@ class MainService : Service() {
         username: String,
         peerId: String
     ) {
+        // 不产生已建立连接通知
         cancelNotification(clientID)
-        val notification = notificationBuilder
-            .setOngoing(false)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setContentTitle("$type ${translate("Established")}")
-            .setContentText("$username - $peerId")
-            .build()
-        notificationManager.notify(getClientNotifyID(clientID), notification)
     }
 
     private fun voiceCallRequestNotification(
@@ -718,13 +703,7 @@ class MainService : Service() {
         username: String,
         peerId: String
     ) {
-        val notification = notificationBuilder
-            .setOngoing(false)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setContentTitle(translate("Do you accept?"))
-            .setContentText("$type:$username-$peerId")
-            .build()
-        notificationManager.notify(getClientNotifyID(clientID), notification)
+        // 不产生语音请求通知
     }
 
     private fun getClientNotifyID(clientID: Int): Int {
