@@ -2,9 +2,6 @@ name: Flutter Tag Build
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - '*'
 
 jobs:
   run-flutter-tag-build:
