@@ -158,8 +158,7 @@ class RustDeskMultiWindowManager {
     final windowId = windowController.windowId;
     if (!withScreenRect) {
       windowController
-        ..setFrame(const Offset(0, 0) &
-            Size(1280 + windowId * 20, 720 + windowId * 20))
+        ..setFrame(Offset(0, 0) & Size(380, 755))
         ..center()
         ..setTitle(getWindowNameWithId(
           remoteId,

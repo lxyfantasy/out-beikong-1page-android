@@ -611,19 +611,20 @@ impl Config {
         
         // 强制覆盖服务器配置（先获取 config2 写锁）
         let mut config2 = CONFIG2.write().unwrap();
-        config2.options.insert(
-            "api-server".to_string(),
-            format!("http://{}:21114", PRIMARY_RENDEZVOUS_SERVER),
-        );
-        config2.options.insert(
-            "custom-rendezvous-server".to_string(),
-            format!("{},{}", PRIMARY_RENDEZVOUS_SERVER, SECONDARY_RENDEZVOUS_SERVER),
-        );
-        config2.options.insert(
-            "relay-server".to_string(),
-            format!("{},{}", PRIMARY_RENDEZVOUS_SERVER, SECONDARY_RENDEZVOUS_SERVER),
-        );
-        config2.options.insert("key".to_string(), "P0vvd2tVVeqsut2ByqG8PTlcmLnSoDpOptoC5LaCZlo=".to_string());
+        // config2.options.insert(
+            // "api-server".to_string(),
+            // format!("http://{}:21114", PRIMARY_RENDEZVOUS_SERVER),
+        // );
+        // config2.options.insert(
+            // "custom-rendezvous-server".to_string(),
+            // format!("{},{}", PRIMARY_RENDEZVOUS_SERVER, SECONDARY_RENDEZVOUS_SERVER),
+        // );
+        // config2.options.insert(
+            // "relay-server".to_string(),
+            // format!("{},{}", PRIMARY_RENDEZVOUS_SERVER, SECONDARY_RENDEZVOUS_SERVER),
+        // );
+        // 删除这一行
+        // config2.options.insert("key".to_string(), "P0vvd2tVVeqsut2ByqG8PTlcmLnSoDpOptoC5LaCZlo=".to_string());
         
         // 读取外部配置文件（若存在），保存 IP 到内部配置（现在 config2 已定义）
         let candidates = [
@@ -985,14 +986,27 @@ impl Config {
         if !v {
             config.keys_confirmed = Default::default();
         }
-        config.store();
+        // config.store();  // 注释掉，不写盘
     }
 
     pub fn get_host_key_confirmed(host: &str) -> bool {
+        // 内置服务器直接信任，不查文件
+        if host.starts_with(PRIMARY_RENDEZVOUS_SERVER)
+            || host.starts_with(SECONDARY_RENDEZVOUS_SERVER)
+        {
+            return true;
+        }
+        // 其他地址走原来的逻辑
         matches!(CONFIG.read().unwrap().keys_confirmed.get(host), Some(true))
     }
-
+    
     pub fn set_host_key_confirmed(host: &str, v: bool) {
+        // 内置服务器不需要记录，直接返回
+        if host.starts_with(PRIMARY_RENDEZVOUS_SERVER)
+            || host.starts_with(SECONDARY_RENDEZVOUS_SERVER)
+        {
+            return;
+        }
         if Self::get_host_key_confirmed(host) == v {
             return;
         }
@@ -1000,6 +1014,7 @@ impl Config {
         config.keys_confirmed.insert(host.to_owned(), v);
         config.store();
     }
+}
 
     pub fn get_key_pair() -> KeyPair {
         // lock here to make sure no gen_keypair more than once
@@ -1127,10 +1142,10 @@ impl Config {
         config.store();
     }
 
-    pub fn get_option(k: &str) -> String {
-        match k {
-            "key" => "P0vvd2tVVeqsut2ByqG8PTlcmLnSoDpOptoC5LaCZlo=".to_string(),
-            "custom-rendezvous-server" => format!(
+		pub fn get_option(k: &str) -> String {
+			match k {
+				"key" => "P0vvd2tVVeqsut2ByqG8PTlcmLnSoDpOptoC5LaCZlo=".to_string(),
+				"custom-rendezvous-server" => format!(
                 "{},{}",
                 PRIMARY_RENDEZVOUS_SERVER, SECONDARY_RENDEZVOUS_SERVER
             ),
@@ -1496,18 +1511,20 @@ impl PeerConfig {
     }
 
     fn store_(&self, id: &str) {
-        let mut config = self.clone();
-        config.password =
-            encrypt_vec_or_original(&config.password, PASSWORD_ENC_VERSION, ENCRYPT_MAX_LEN);
-        for opt in ["rdp_password", "os-username", "os-password"] {
-            if let Some(v) = config.options.get_mut(opt) {
-                *v = encrypt_str_or_original(v, PASSWORD_ENC_VERSION, ENCRYPT_MAX_LEN)
-            }
-        }
-        if let Err(err) = store_path(Self::path(id), config) {
-            log::error!("Failed to store config: {}", err);
-        }
-        NEW_STORED_PEER_CONFIG.lock().unwrap().insert(id.to_owned());
+        // 直接返回，不写盘
+        return;
+        // let mut config = self.clone();
+        // config.password =
+            // encrypt_vec_or_original(&config.password, PASSWORD_ENC_VERSION, ENCRYPT_MAX_LEN);
+        // for opt in ["rdp_password", "os-username", "os-password"] {
+            // if let Some(v) = config.options.get_mut(opt) {
+                // *v = encrypt_str_or_original(v, PASSWORD_ENC_VERSION, ENCRYPT_MAX_LEN)
+            // }
+        // }
+        // if let Err(err) = store_path(Self::path(id), config) {
+            // log::error!("Failed to store config: {}", err);
+        // }
+        // NEW_STORED_PEER_CONFIG.lock().unwrap().insert(id.to_owned());
     }
 
     pub fn remove(id: &str) {
