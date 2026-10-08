@@ -1014,7 +1014,6 @@ impl Config {
         config.keys_confirmed.insert(host.to_owned(), v);
         config.store();
     }
-}
 
     pub fn get_key_pair() -> KeyPair {
         // lock here to make sure no gen_keypair more than once
