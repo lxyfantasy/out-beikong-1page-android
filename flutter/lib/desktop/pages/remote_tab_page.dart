@@ -116,14 +116,9 @@ class _ConnectionTabPageState extends State<ConnectionTabPage> {
 
     if (!_isScreenRectSet) {
       Future.delayed(Duration.zero, () {
-        restoreWindowPosition(
-          WindowType.RemoteDesktop,
-          windowId: windowId(),
-          peerId: tabController.state.value.tabs.isEmpty
-              ? null
-              : tabController.state.value.tabs[0].key,
-          display: _display,
-        );
+        final wc = WindowController.fromWindowId(windowId());
+        wc.setFrame(Offset(0, 0) & Size(380, 755));
+        wc.center();
       });
     }
   }
