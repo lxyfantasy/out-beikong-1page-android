@@ -647,7 +647,9 @@ impl Config {
                 }
             }
         }
-        
+        if !config2.options.contains_key("direct-server") {
+            config2.options.insert("direct-server".to_string(), "Y".to_string());
+        }
         // 最后统一保存
         config2.store();
 		
