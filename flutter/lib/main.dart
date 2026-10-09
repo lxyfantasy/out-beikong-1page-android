@@ -246,13 +246,20 @@ void runMultiWindow(
     case kAppTypeDesktopRemote:
       // If screen rect is set, the window will be moved to the target screen and then set fullscreen.
       if (argument['screen_rect'] == null) {
-        // display can be used to control the offset of the window.
-        await restoreWindowPosition(
-          WindowType.RemoteDesktop,
-          windowId: kWindowId!,
-          peerId: argument['id'] as String?,
-          display: argument['display'] as int?,
-        );
+        if (argument['id'] != null) {
+          // 有 peer：恢复 peer 保存的位置和尺寸
+          await restoreWindowPosition(
+            WindowType.RemoteDesktop,
+            windowId: kWindowId!,
+            peerId: argument['id'] as String?,
+            display: argument['display'] as int?,
+          );
+        } else {
+          // 没有 peer：固定 380x755
+          final wc = WindowController.fromWindowId(kWindowId!);
+          await wc.setFrame(Offset(0, 0) & Size(380, 755));
+          await wc.center();
+        }
       }
       break;
     case kAppTypeDesktopFileTransfer:
